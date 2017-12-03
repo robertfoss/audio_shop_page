@@ -140,7 +140,7 @@ exports.setupFileInput = function setupFileInput(interact, func) {
     ev.preventDefault();
     // If dropped items aren't files, reject them
     var dt = ev.dataTransfer;
-    console.log("Drop 1");
+
     if (dt && dt.items) {
       // Use DataTransferItemList interface to access the file(s)
       /*
@@ -151,15 +151,12 @@ exports.setupFileInput = function setupFileInput(interact, func) {
         }
       }
       */
-      console.log("Drop 2");
       if (dt.items[0].kind != "file") {
         console.log("Not a file");
         return;
       }
-      console.log("Drop 3");
       file = dt.items[0].getAsFile();
     } else if (dt && dt.files) {
-      console.log("Drop 4");
       // Use DataTransfer interface to access the file(s)
       /*
       for (var i=0; i < dt.files.length; i++) {
@@ -170,13 +167,10 @@ exports.setupFileInput = function setupFileInput(interact, func) {
         console.log("Not a file");
         return;
       }
-      console.log("Drop 5");
       file = dt.items[0].getAsFile();
     } else if (this.files) {
-      console.log("Drop 6");
       file = this.files[0];
     }
-    console.log("Drop 7");
     func(file);
   }
 
@@ -217,6 +211,7 @@ exports.setupFileInput = function setupFileInput(interact, func) {
 };
 
 exports.displayFile = function displayFile(interact, file) {
+  var upload = document.getElementById('upload');
   var img = document.getElementById('img');
   var video = document.getElementById('video');
   var ext = file.name.split('.').pop().toLowerCase();
@@ -229,16 +224,17 @@ exports.displayFile = function displayFile(interact, file) {
       img.src = fr.result;
     }
     fr.readAsDataURL(file);
-    video.style = "display: none;";
     img.style = "";
+    upload.style.display = "inherit";
+    video.style = "display: none;";
   } else {
     console.log("Video displayed: " + file.name);
     fr.onload = function () {
       video.src = fr.result;
     }
     fr.readAsDataURL(file);
-    img.src = "images/upload.svg";
-    img.style = "padding-top: 1.5em; padding-bottom: 1em; padding-left: 35%; padding-right: 35%";
+    img.style.display = "none";
+    upload.style.display = "inherit";
     video.style = "";
   }
 }
