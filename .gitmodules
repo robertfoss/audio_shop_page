@@ -1,0 +1,6 @@
+[submodule "lib/external/ffmpeg.js"]
+	path = lib/external/ffmpeg.js
+	url = https://github.com/Kagami/ffmpeg.js.git
+[submodule "lib/external/sox.js"]
+	path = lib/external/sox.js
+	url = https://github.com/skratchdot/sox.js.git
