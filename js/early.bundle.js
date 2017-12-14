@@ -234,7 +234,7 @@ exports.displayFile = function displayFile(interact, file) {
       img.src = fr.result;
     }
     fr.readAsDataURL(file);
-    img.style = "";
+    img.style = "display: block; margin: auto;";
     upload.style.display = "inherit";
     video.style = "display: none;";
   } else {
@@ -245,7 +245,7 @@ exports.displayFile = function displayFile(interact, file) {
     fr.readAsDataURL(file);
     img.style.display = "none";
     upload.style.display = "inherit";
-    video.style = "";
+    video.style = "display: block; margin: auto;";
   }
 }
 
@@ -321,12 +321,6 @@ exports.ffmpegIsSupported = function ffmpegIsSupported() {
 exports.ffmpegWorkerOnMessage = function ffmpegWorkerOnMessage(event) {
   var message = event.data;
   if (message.type == "ready") {
-    /*
-    exports.ffmpegWorker.postMessage({
-      type: 'command',
-      arguments: ['-help']
-    });
-    */
     exports.setAlert("success", "ffmpeg:", " Ready!");
   } else if (message.type == "stdout") {
     exports.setAlert("primary", "stdout", message.data);
@@ -337,6 +331,7 @@ exports.ffmpegWorkerOnMessage = function ffmpegWorkerOnMessage(event) {
   } else if (message.type == "exit") {
     exports.ffmpegWorker.terminate();
   } else if (message.type == "done") {
+    exports.setAlert("success", "ffmpeg:", " Finished operation in " + message.time + "ms");
     var buffers = message.data;
     if (!buffers.length) {
       console.log("ffmpegWorkerOnMessage() !buffers.length");
@@ -356,13 +351,13 @@ exports.ffmpegRunCommand = function ffmpegRunCommand(arg, inputFile, inputData) 
   exports.ffmpegWorker = new Worker("js/worker-asm.js");
   exports.ffmpegWorker.onmessage = exports.ffmpegWorkerOnMessage;
   var args = exports.parseArguments(arg);
-  console.log("ffmpeg: " + arg);
 
+  console.log("ffmpeg: " + arg);
   console.log("inputFile:", inputFile);
   console.log("inputData:", inputData);
 
   exports.ffmpegWorker.postMessage({
-    type: 'command',
+    type: 'run',
     arguments: args,
     files: [
       {
