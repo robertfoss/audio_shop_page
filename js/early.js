@@ -8,13 +8,15 @@ var inputFile;
 var inputData;
 
 function newFile(file) {
-  inputFile = file;
   var bufferReader = new FileReader();
   bufferReader.readAsArrayBuffer(file);
   bufferReader.onload = function() {
     var arrayBuffer = bufferReader.result
-    inputData = new Uint8Array(arrayBuffer);
-    console.log(inputData);
+    fileData = new Uint8Array(arrayBuffer);
+    console.log(fileData);
+    util.ffmpegRunCommand("-i " + file.name + " -vf vflip out.jpg",
+                          file.name,
+                          fileData);
   };
   util.displayFile(interact, file);
 }

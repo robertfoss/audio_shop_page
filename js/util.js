@@ -88,15 +88,23 @@ exports.drawImgDataCanvas = function (canvas_id, img, x, y, w, h, offsetX, offse
     canvas_ctx.drawImage(img, cx, cy, cw, ch,  x, y, w, h);
 };
 
-exports.setAlert = function (str) {
-  var alert = document.getElementById('alert');
-  alert.style.visibility = "visible";
-  alert.innerHtml = str;
+exports.setAlert = function (type, title, msg) {
+  if (!type || type === "") {
+    type = "primary";
+  }
+  var alert_html = "" +
+    "<div class='alert alert-" + type + " alert-dismissible fade show hide' role='alert' id='alert' style=''>" +
+    "  <strong>" + title + "</strong> " + msg +
+    "  <button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
+    "    <span aria-hidden='true'>&times;</span>" +
+    "  </button>" +
+    "</div>";
+  $('#alert-container').append(alert_html);
 };
 
-exports.error = function (str) {
+exports.error = function error(str) {
   console.log("Error: " + str);
-  exports.setAlert(str);
+  exports.setAlert("danger", "Error", str);
 };
 
 exports.toDataURL = function encodeImageFileAsURL(element) {
@@ -235,3 +243,100 @@ function drawCanvas() {
 }
 tmp_img.src = "images/upload.svg";
 };
+
+exports.getDownloadLink = function getDownloadLink(file) {
+  if (file.name.match(/\.jpeg|\.gif|\.jpg|\.png/)) {
+    var blob = new Blob([file.data]);
+    var src = window.URL.createObjectURL(blob);
+    var img = document.createElement('img');
+    img.src = src;
+    return img;
+  } else {
+    var a = document.createElement('a');
+    a.download = file.name;
+    var blob = new Blob([file.data]);
+    var src = window.URL.createObjectURL(blob);
+    a.href = src;
+    a.textContent = 'Click here to download ' + file.name + "!";
+    return a;
+  }
+}
+
+exports.parseArguments = function parseArguments(text) {
+  text = text.replace(/\s+/g, ' ');
+  var args = [];
+  // Allow double quotes to not split args.
+  text.split('"').forEach(function(t, i) {
+    t = t.trim();
+    if ((i % 2) === 1) {
+      args.push(t);
+    } else {
+      args = args.concat(t.split(" "));
+    }
+  });
+  return args;
+}
+
+exports.ffmpegIsSupported = function ffmpegIsSupported() {
+  return document.querySelector && window.URL && window.Worker;
+};
+
+exports.ffmpegWorkerOnMessage = function ffmpegWorkerOnMessage(event) {
+  var message = event.data;
+  if (message.type == "ready") {
+    /*
+    exports.ffmpegWorker.postMessage({
+      type: 'command',
+      arguments: ['-help']
+    });
+    */
+    exports.setAlert("success", "ffmpeg:", " Ready!");
+  } else if (message.type == "stdout") {
+    exports.setAlert("primary", "stdout", message.data);
+  } else if (message.type == "stderr") {
+    exports.setAlert("danger", "stderr", message.data);
+  } else if (message.type == "start") {
+    exports.setAlert("primary", "ffmpeg", message.data);
+  } else if (message.type == "exit") {
+    exports.ffmpegWorker.terminate();
+  } else if (message.type == "done") {
+    var buffers = message.data;
+/*
+    if (!buffers.length) {
+      console.log("ffmpegWorkerOnMessage() !buffers.length");
+      return;
+    }
+    var filesElement = document.getElementById("files");
+    buffers.forEach(function(file) {
+      filesElement.appendChild(
+        exports.getDownloadLink(file)
+      );
+    });
+    */
+  }
+};
+
+exports.ffmpegRunCommand = function ffmpegRunCommand(arg, inputFile, inputData) {
+  console.log("ffmpegInitWorker()");
+  if (!exports.ffmpegIsSupported()) {
+    exports.error("Unable to start ffmpeg");
+  }
+  exports.ffmpegWorker = new Worker("js/worker-asm.js");
+  exports.ffmpegWorker.onmessage = exports.ffmpegWorkerOnMessage;
+  var args = exports.parseArguments(arg);
+  console.log("ffmpeg: " + arg);
+
+  console.log("inputFile:", inputFile);
+  console.log("inputData:", inputData);
+  
+  exports.ffmpegWorker.postMessage({
+    type: 'command',
+    arguments: args,
+    files: [
+      {
+        "name": inputFile,
+        "data": inputData
+      }
+    ]
+  });
+}
