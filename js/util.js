@@ -294,12 +294,6 @@ exports.ffmpegIsSupported = function ffmpegIsSupported() {
 exports.ffmpegWorkerOnMessage = function ffmpegWorkerOnMessage(event) {
   var message = event.data;
   if (message.type == "ready") {
-    /*
-    exports.ffmpegWorker.postMessage({
-      type: 'command',
-      arguments: ['-help']
-    });
-    */
     exports.setAlert("success", "ffmpeg:", " Ready!");
   } else if (message.type == "stdout") {
     exports.setAlert("primary", "stdout", message.data);
