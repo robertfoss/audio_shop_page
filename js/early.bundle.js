@@ -9,13 +9,15 @@ var inputFile;
 var inputData;
 
 function newFile(file) {
-  inputFile = file;
   var bufferReader = new FileReader();
   bufferReader.readAsArrayBuffer(file);
   bufferReader.onload = function() {
     var arrayBuffer = bufferReader.result
-    inputData = new Uint8Array(arrayBuffer);
-    console.log(inputData);
+    fileData = new Uint8Array(arrayBuffer);
+    console.log(fileData);
+    util.ffmpegRunCommand("-i " + file.name + " -vf vflip out.jpg",
+                          file.name,
+                          fileData);
   };
   util.displayFile(interact, file);
 }
@@ -270,6 +272,15 @@ tmp_img.src = "images/upload.svg";
 };
 
 exports.getDownloadLink = function getDownloadLink(file) {
+  console.log("getDownloadLink() file.name", file.name);
+  console.log("getDownloadLink() file.data", file.data);
+  var blob = new Blob([file.data]);
+  var src = window.URL.createObjectURL(blob);
+  console.log("blob: ", blob);
+  var img = document.getElementById('img');
+  console.log("setting img.src to: ", src);
+  img.src = src;
+  /*
   if (file.name.match(/\.jpeg|\.gif|\.jpg|\.png/)) {
     var blob = new Blob([file.data]);
     var src = window.URL.createObjectURL(blob);
@@ -285,6 +296,7 @@ exports.getDownloadLink = function getDownloadLink(file) {
     a.textContent = 'Click here to download ' + file.name + "!";
     return a;
   }
+  */
 }
 
 exports.parseArguments = function parseArguments(text) {
@@ -326,18 +338,13 @@ exports.ffmpegWorkerOnMessage = function ffmpegWorkerOnMessage(event) {
     exports.ffmpegWorker.terminate();
   } else if (message.type == "done") {
     var buffers = message.data;
-/*
     if (!buffers.length) {
       console.log("ffmpegWorkerOnMessage() !buffers.length");
       return;
     }
-    var filesElement = document.getElementById("files");
     buffers.forEach(function(file) {
-      filesElement.appendChild(
-        exports.getDownloadLink(file)
-      );
+      exports.getDownloadLink(file);
     });
-    */
   }
 };
 
@@ -353,7 +360,7 @@ exports.ffmpegRunCommand = function ffmpegRunCommand(arg, inputFile, inputData) 
 
   console.log("inputFile:", inputFile);
   console.log("inputData:", inputData);
-  
+
   exports.ffmpegWorker.postMessage({
     type: 'command',
     arguments: args,

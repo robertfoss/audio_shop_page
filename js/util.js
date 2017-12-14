@@ -244,7 +244,16 @@ function drawCanvas() {
 tmp_img.src = "images/upload.svg";
 };
 
-exports.getDownloadLink = function getDownloadLink(file) {
+exports.showOutput = function showOutput(file) {
+  console.log("showOutput() file.name", file.name);
+  console.log("showOutput() file.data", file.data);
+  var blob = new Blob([file.data]);
+  var src = window.URL.createObjectURL(blob);
+  console.log("blob: ", blob);
+  var img = document.getElementById('img');
+  console.log("setting img.src to: ", src);
+  img.src = src;
+  /*
   if (file.name.match(/\.jpeg|\.gif|\.jpg|\.png/)) {
     var blob = new Blob([file.data]);
     var src = window.URL.createObjectURL(blob);
@@ -260,6 +269,7 @@ exports.getDownloadLink = function getDownloadLink(file) {
     a.textContent = 'Click here to download ' + file.name + "!";
     return a;
   }
+  */
 }
 
 exports.parseArguments = function parseArguments(text) {
@@ -301,18 +311,13 @@ exports.ffmpegWorkerOnMessage = function ffmpegWorkerOnMessage(event) {
     exports.ffmpegWorker.terminate();
   } else if (message.type == "done") {
     var buffers = message.data;
-/*
     if (!buffers.length) {
       console.log("ffmpegWorkerOnMessage() !buffers.length");
       return;
     }
-    var filesElement = document.getElementById("files");
     buffers.forEach(function(file) {
-      filesElement.appendChild(
-        exports.getDownloadLink(file)
-      );
+      exports.showOutput(file);
     });
-    */
   }
 };
 
@@ -328,7 +333,7 @@ exports.ffmpegRunCommand = function ffmpegRunCommand(arg, inputFile, inputData) 
 
   console.log("inputFile:", inputFile);
   console.log("inputData:", inputData);
-  
+
   exports.ffmpegWorker.postMessage({
     type: 'command',
     arguments: args,
