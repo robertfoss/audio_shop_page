@@ -329,7 +329,7 @@ exports.ffmpegRunCommand = function ffmpegRunCommand(arg, inputFile, inputData) 
   console.log("inputData:", inputData);
 
   exports.ffmpegWorker.postMessage({
-    type: 'command',
+    type: 'run',
     arguments: args,
     files: [
       {

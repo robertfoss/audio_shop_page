@@ -19,7 +19,7 @@ onmessage = function(event) {
 
   var message = event.data;
 
-  if (message.type === "command") {
+  if (message.type === 'run') {
 debugger;
     var Module = {
       print: print,
