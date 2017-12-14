@@ -207,7 +207,7 @@ exports.displayFile = function displayFile(interact, file) {
       img.src = fr.result;
     }
     fr.readAsDataURL(file);
-    img.style = "";
+    img.style = "display: block; margin: auto;";
     upload.style.display = "inherit";
     video.style = "display: none;";
   } else {
@@ -218,7 +218,7 @@ exports.displayFile = function displayFile(interact, file) {
     fr.readAsDataURL(file);
     img.style.display = "none";
     upload.style.display = "inherit";
-    video.style = "";
+    video.style = "display: block; margin: auto;";
   }
 }
 
