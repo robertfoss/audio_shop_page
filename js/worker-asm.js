@@ -46,11 +46,6 @@ onmessage = function(event) {
     var totalTime = now() - time;
 
     postMessage({
-      'type' : 'stdout',
-      'data' : 'Finished processing (took ' + totalTime + 'ms)'
-    });
-
-    postMessage({
       'type' : 'done',
       'data' : result,
       'time' : totalTime

@@ -304,6 +304,7 @@ exports.ffmpegWorkerOnMessage = function ffmpegWorkerOnMessage(event) {
   } else if (message.type == "exit") {
     exports.ffmpegWorker.terminate();
   } else if (message.type == "done") {
+    exports.setAlert("success", "ffmpeg:", " Finished operation in " + message.time + "ms");
     var buffers = message.data;
     if (!buffers.length) {
       console.log("ffmpegWorkerOnMessage() !buffers.length");
