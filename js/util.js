@@ -323,8 +323,8 @@ exports.ffmpegRunCommand = function ffmpegRunCommand(arg, inputFile, inputData) 
   exports.ffmpegWorker = new Worker("js/worker-asm.js");
   exports.ffmpegWorker.onmessage = exports.ffmpegWorkerOnMessage;
   var args = exports.parseArguments(arg);
-  console.log("ffmpeg: " + arg);
 
+  console.log("ffmpeg: " + arg);
   console.log("inputFile:", inputFile);
   console.log("inputData:", inputData);
 
