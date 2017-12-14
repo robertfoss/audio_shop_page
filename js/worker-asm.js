@@ -35,12 +35,6 @@ onmessage = function(event) {
       'data' : Module.arguments.join(" ")
     });
 
-    postMessage({
-      'type' : 'stdout',
-      'data' : 'ffmpeg ' +
-                Module.arguments.join(" ")
-    });
-
     var time = now();
     var result = ffmpeg_run(Module);
     var totalTime = now() - time;
