@@ -271,9 +271,9 @@ function drawCanvas() {
 tmp_img.src = "images/upload.svg";
 };
 
-exports.getDownloadLink = function getDownloadLink(file) {
-  console.log("getDownloadLink() file.name", file.name);
-  console.log("getDownloadLink() file.data", file.data);
+exports.showOutput = function showOutput(file) {
+  console.log("showOutput() file.name", file.name);
+  console.log("showOutput() file.data", file.data);
   var blob = new Blob([file.data]);
   var src = window.URL.createObjectURL(blob);
   console.log("blob: ", blob);
@@ -343,7 +343,7 @@ exports.ffmpegWorkerOnMessage = function ffmpegWorkerOnMessage(event) {
       return;
     }
     buffers.forEach(function(file) {
-      exports.getDownloadLink(file);
+      exports.showOutput(file);
     });
   }
 };
