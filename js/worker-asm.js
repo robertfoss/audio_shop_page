@@ -43,8 +43,8 @@ onmessage = function(event) {
 
     var time = now();
     var result = ffmpeg_run(Module);
-
     var totalTime = now() - time;
+
     postMessage({
       'type' : 'stdout',
       'data' : 'Finished processing (took ' + totalTime + 'ms)'
