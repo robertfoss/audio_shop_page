@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 var util = require('./util');
 
 
@@ -241,7 +241,7 @@ exports.displayFile = function displayFile(interact, file) {
       img.src = fr.result;
     }
     fr.readAsDataURL(file);
-    img.style = "display: block; margin: auto;";
+    img.style = "display: block; margin: auto; padding-top: 2em; padding-bottom: 2em;";
     upload.style.display = "inherit";
     video.style = "display: none;";
   } else {
@@ -252,7 +252,7 @@ exports.displayFile = function displayFile(interact, file) {
     fr.readAsDataURL(file);
     img.style.display = "none";
     upload.style.display = "inherit";
-    video.style = "display: block; margin: auto;";
+    video.style = "display: block; margin: auto;  padding-top: 2em; padding-bottom: 2em;";
   }
 }
 
@@ -333,20 +333,26 @@ exports.ffmpegWorkerOnMessage = function ffmpegWorkerOnMessage(event) {
     exports.setAlert("primary", "stdout", message.data);
   } else if (message.type == "stderr") {
     exports.setAlert("danger", "stderr", message.data);
+  } else if (message.type == "error") {
+    exports.setAlert("danger", "error", message.data);
   } else if (message.type == "start") {
     exports.setAlert("primary", "ffmpeg", message.data);
   } else if (message.type == "exit") {
-    exports.ffmpegWorker.terminate();
+    exports.setAlert("primary", "ffmpeg", "Exited with:" + message.data);
   } else if (message.type == "done") {
-    exports.setAlert("success", "ffmpeg:", " Finished operation in " + message.time + "ms");
-    var buffers = message.data;
-    if (!buffers.length) {
-      console.log("ffmpegWorkerOnMessage() !buffers.length");
+    console.log("ffmpegWorkerOnMessage() done: ", event);
+    exports.setAlert("success", "ffmpeg:", " Finished operation in " + event.timeStamp + "ms");
+    var mem = message.data.MEMFS;
+    if (mem.length == 0) {
+      console.log("ffmpegWorkerOnMessage() No buffers returned");
+      exports.setAlert("danger", "ffmpeg:", "No files returned");
       return;
     }
-    buffers.forEach(function(file) {
+    mem.forEach(function(file) {
+      console.log("ffmpegWorkerOnMessage() file: ", file);
       exports.showOutput(file);
     });
+    event.target.terminate();
   }
 };
 
@@ -355,21 +361,21 @@ exports.ffmpegRunCommand = function ffmpegRunCommand(arg, inputFile, inputData) 
   if (!exports.ffmpegIsSupported()) {
     exports.error("Unable to start ffmpeg");
   }
-  exports.ffmpegWorker = new Worker("js/worker-asm.js");
+  exports.ffmpegWorker = new Worker("js/ffmpeg-worker.js");
   exports.ffmpegWorker.onmessage = exports.ffmpegWorkerOnMessage;
   var args = exports.parseArguments(arg);
 
   console.log("ffmpeg: " + arg);
+  console.log("ffmpeg: ", args);
   console.log("inputFile:", inputFile);
   console.log("inputData:", inputData);
 
   exports.ffmpegWorker.postMessage({
     type: 'run',
     arguments: args,
-    files: [
+    MEMFS: [
       {
-        "name": inputFile,
-        "data": inputData
+        name: inputFile, data: inputData
       }
     ]
   });

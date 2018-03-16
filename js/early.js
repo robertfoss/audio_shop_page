@@ -14,7 +14,13 @@ function newFile(file) {
     var arrayBuffer = bufferReader.result
     fileData = new Uint8Array(arrayBuffer);
     console.log(fileData);
-    util.ffmpegRunCommand("-i " + file.name + " -vf vflip out.jpg",
+
+    var split_name = file.name.split(".");
+    var ext = split_name[1];
+
+    //var default_args = "-y -loglevel error -i "
+    var default_args = "-y -i ";
+    util.ffmpegRunCommand(default_args + "\"" + file.name + "\" -vf vflip out." + ext,
                           file.name,
                           fileData);
   };
