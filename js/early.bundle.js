@@ -15,7 +15,13 @@ function newFile(file) {
     var arrayBuffer = bufferReader.result
     fileData = new Uint8Array(arrayBuffer);
     console.log(fileData);
-    util.ffmpegRunCommand("-i " + file.name + " -vf vflip out.jpg",
+    //var default_args = "-y -loglevel error -i "
+    var default_args = "-y -i ";
+    var split_name = file.name.split(".");
+    var escaped_name = file.name.replace(" ", "\ ");
+
+    var ext = split_name[1];
+    util.ffmpegRunCommand(default_args + "\"" + file.name + "\" -vf vflip out." + ext,
                           file.name,
                           fileData);
   };
@@ -25,6 +31,7 @@ util.setupFileInput(interact, newFile);
 util.setupCanvas(canvas);
 
 },{"./util":2}],2:[function(require,module,exports){
+
 exports.getImgDataID = function (id) {
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
